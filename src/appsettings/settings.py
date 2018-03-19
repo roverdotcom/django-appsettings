@@ -9,6 +9,7 @@ This module defines the different type checkers and settings classes.
 import importlib
 
 from django.conf import settings
+from django.conf import global_settings
 
 
 # Type checkers ===============================================================
@@ -482,10 +483,9 @@ class Setting(object):
             object: the transformed raw value.
         """
         return self.get_value()
-    
+
     def _inject_into_global_settings(self):
-        if not self.required:
-            setattr(settings, self.full_name, self.get_value())
+        setattr(global_settings, self.full_name, self.get_value())
 
     def get_value(self):
         """
@@ -543,7 +543,8 @@ class BooleanSetting(Setting):
     """Boolean setting."""
 
     def __init__(self, name='', default=True, required=False,
-                 prefix='', call_default=True, transform_default=False):
+                 prefix='', call_default=True, transform_default=False, 
+                 inject_globally=True):
         """
         Initialization method.
 
@@ -559,7 +560,7 @@ class BooleanSetting(Setting):
         super(BooleanSetting, self).__init__(
             name=name, default=default, required=required, prefix=prefix,
             call_default=call_default, transform_default=transform_default,
-            checker=BooleanTypeChecker())
+            inject_globally=True, checker=BooleanTypeChecker())
 
 
 class IntegerSetting(Setting):
@@ -694,7 +695,7 @@ class StringSetting(Setting):
 
     def __init__(self, name='', default='', required=False,
                  prefix='', call_default=True, transform_default=False,
-                 **checker_kwargs):
+                 inject_globally=True, **checker_kwargs):
         """
         Initialization method.
 
@@ -711,7 +712,7 @@ class StringSetting(Setting):
         super(StringSetting, self).__init__(
             name=name, default=default, required=required, prefix=prefix,
             call_default=call_default, transform_default=transform_default,
-            checker=StringTypeChecker(**checker_kwargs))
+            inject_globally=inject_globally, checker=StringTypeChecker(**checker_kwargs))
 
 
 class ListSetting(Setting):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Main test script."""
-
+from django.conf import settings as dj_settings
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase, override_settings
 
@@ -472,3 +472,9 @@ class AppSettingsTestCase(SimpleTestCase):
 
         with pytest.raises(ImproperlyConfigured):
             assert not AppConf.check()
+    
+    def test_global_setting_injection(self):
+        class AppConf(appsettings.AppSettings):
+            my_setting = appsettings.Setting()
+        appconf = AppConf()
+        self.assertEqual(dj_settings.get('MY_SETTING'), appconf.my_setting)
